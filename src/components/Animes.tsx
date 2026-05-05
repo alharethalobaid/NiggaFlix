@@ -1,59 +1,50 @@
-import { createResource, createSignal, For, Suspense } from "solid-js";
-import Anime from "./Anime";
+import { createResource, For, Suspense } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 
-export default function Movies() {
-  const [limit , setlimit] = createSignal(2000)
-  const [offset , setOffset] = createSignal(0)
-  const [myear, setMyear] = createSignal(2000)
-const url = "https://apiqsasmstiryuwcyemk.supabase.co/rest/v1/movie?"
-const options = {
-method: "GET",
-headers:{
-apikey : "sb_publishable_7hlyHenDUcmecwApd4hjFg_E3UhudBj"
-}
-}
-const filter = ()=>"limit="+limit()+"&offset="+offset();
- const [data] = createResource(filter,async()=>{
-  const data = await fetch(url+filter(),options);
-return  await data.json();
- })
+const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/Anime"
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
- function updateLimit(e){
-  setlimit(e.target.value)
-}
+export default function Anime() {
+  const navigate = useNavigate()
 
-function updateOffset(e){
- setOffset(e.target.value)
-}
+  const [data] = createResource(async () => {
+    const res = await fetch(SUPABASE_URL, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    })
+    const all = await res.json()
+console.log(all)
+if (!Array.isArray(all)) return []
 
+    // get unique shows by name
+    const seen = new Set()
+    return all.filter(item => {
+      const key = item.show || item.title
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  })
 
   return (
-   <>
-     <div>
-     limit:
-     <input value ={limit()} onInput={updateLimit} class="input border-2 border-black" type="number" />
-   </div>
-   <div>
-     Offset:
-     <input value ={offset()} onInput={updateOffset} class="input border-2 border-black" type="number" />
-   </div>
-   <div>
-     year:
-     <input value={myear()} onInput={(e) => setMyear(Number(e.target.value))} class="input border-2 border-black" type="number" />
-   </div>
-   <Suspense fallback={<><span class="loading loading-ball loading-xs"></span>
-<span class="loading loading-ball loading-sm"></span>
-<span class="loading loading-ball loading-md"></span>
-<span class="loading loading-ball loading-lg"></span>
-<span class="loading loading-ball loading-xl"></span></>}>
-   <For each={data()}>
-     {(item,index)=>
-     <>
-        <Anime item={item} myear={myear()} />  
-     </>
-     }
-     </For>
-     </Suspense> 
-   </>
-  );
+    <Suspense fallback={<span class="loading loading-ball loading-md"></span>}>
+      <div class="flex flex-wrap gap-4 p-4">
+        <For each={data()}>
+          {(item) => (
+            <div
+              class="card bg-base-100 w-60 shadow-sm cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => navigate(`/anime/${encodeURIComponent(item.show || item.title)}`)}
+            >
+              <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.show} width="100%" />
+              <div class="card-body">
+                <h2 class="card-title">{item.show}</h2>
+              </div>
+            </div>
+          )}
+        </For>
+      </div>
+    </Suspense>
+  )
 }
