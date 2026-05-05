@@ -1,3 +1,4 @@
+import Episodes from "~/components/Episodes";
 import Movies from "~/components/Movies";
 export default function P4() {
   return (
@@ -8,7 +9,7 @@ export default function P4() {
       </h1>
 
       <Movies/>
-      
+      <Episodes/>
       <p class="mt-8">
        
       </p>
