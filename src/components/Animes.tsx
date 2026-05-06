@@ -1,4 +1,4 @@
-import { createResource, For, Suspense } from "solid-js";
+import { createResource, For, Suspense, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/Anime"
@@ -6,6 +6,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export default function Anime() {
   const navigate = useNavigate()
+  const [search, setSearch] = createSignal("")
 
   const [data] = createResource(async () => {
     const res = await fetch(SUPABASE_URL, {
@@ -15,10 +16,8 @@ export default function Anime() {
       }
     })
     const all = await res.json()
-console.log(all)
-if (!Array.isArray(all)) return []
+    if (!Array.isArray(all)) return []
 
-    // get unique shows by name
     const seen = new Set()
     return all.filter(item => {
       const key = item.show || item.title
@@ -28,22 +27,39 @@ if (!Array.isArray(all)) return []
     })
   })
 
+  const filtered = () => {
+    const q = search().toLowerCase()
+    if (!q) return data() || []
+    return (data() || []).filter(item =>
+      (item.show || item.title || '').toLowerCase().includes(q)
+    )
+  }
+
   return (
     <Suspense fallback={<span class="loading loading-ball loading-md"></span>}>
-      <div class="flex flex-wrap gap-4 p-4">
-        <For each={data()}>
-          {(item) => (
-            <div
-              class="card bg-base-100 w-60 shadow-sm cursor-pointer hover:scale-105 transition-transform"
-              onClick={() => navigate(`/anime/${encodeURIComponent(item.show || item.title)}`)}
-            >
-              <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.show} width="100%" />
-              <div class="card-body">
-                <h2 class="card-title">{item.show}</h2>
+      <div class="p-4">
+        <input
+          type="text"
+          placeholder="Search anime..."
+          class="input input-bordered w-full max-w-md mb-6"
+          value={search()}
+          onInput={(e) => setSearch(e.target.value)}
+        />
+        <div class="flex flex-wrap gap-4">
+          <For each={filtered()}>
+            {(item) => (
+              <div
+                class="card bg-base-100 w-60 shadow-sm cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => navigate(`/anime/${encodeURIComponent(item.show || item.title)}`)}
+              >
+                <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.show} width="100%" />
+                <div class="card-body">
+                  <h2 class="card-title">{item.show}</h2>
+                </div>
               </div>
-            </div>
-          )}
-        </For>
+            )}
+          </For>
+        </div>
       </div>
     </Suspense>
   )
