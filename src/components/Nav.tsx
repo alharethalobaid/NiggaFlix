@@ -28,7 +28,7 @@ export default function Nav() {
         </li>
 
 
-        <li>
+        {/* <li>
           <A
             href="/about"
             end={true}
@@ -37,7 +37,7 @@ export default function Nav() {
           >
             About
           </A>
-        </li>
+        </li> */}
 
         <li>
           <A
