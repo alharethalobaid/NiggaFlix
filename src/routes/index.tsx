@@ -1,15 +1,23 @@
-import { A } from '@solidjs/router';
-import Counter from '~/components/Counter';
+import { useNavigate } from "@solidjs/router";
+import { onMount } from "solid-js";
+import { createClient } from "@supabase/supabase-js";
 
+const supabase = createClient(
+  "https://rwzsafzjrdqtrtalyzfz.supabase.co",
+  "your_anon_key_here"
+)
 
-export default function Home() {
-  return (
-    <main class="mx-auto mb-auto p-4 text-center">
-      
-      <h1 class="text-6xl font-thin uppercase my-16 text-black">
-       Welcome to my Niggaflix
-      </h1>
-      
-    </main>
-  );
+export default function Index() {
+  const navigate = useNavigate()
+
+  onMount(async () => {
+    const { data } = await supabase.auth.getSession()
+    if (data.session) {
+      navigate("/home")
+    } else {
+      navigate("/login")
+    }
+  })
+
+  return <></>
 }
