@@ -1,53 +1,72 @@
-import { Router } from "@solidjs/router";
-import { FileRoutes } from "@solidjs/start/router";
-import { Suspense, createSignal, onMount, Show } from "solid-js";
-import "./app.css";
-import Nav from "~/components/Nav";
-import Footer from "./components/Footer";
-import { useNavigate, useLocation } from "@solidjs/router";
+import { createSignal } from "solid-js";
+import { useNavigate } from "@solidjs/router";
+import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co"
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
+const supabase = createClient(
+  "https://rwzsafzjrdqtrtalyzfz.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
+)
 
-export default function App() {
+export default function Login() {
+  const navigate = useNavigate()
+  const [email, setEmail] = createSignal("")
+  const [password, setPassword] = createSignal("")
+  const [error, setError] = createSignal("")
+  const [loading, setLoading] = createSignal(false)
+
+  async function handleLogin() {
+    setLoading(true)
+    setError("")
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email(),
+      password: password()
+    })
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      navigate("/")
+    }
+  }
+
   return (
-    <main class="mx-auto flex flex-col h-screen bg-base-100 text-base-content">
-      <Router
-        root={props => {
-          const navigate = useNavigate()
-          const location = useLocation()
-          const [checked, setChecked] = createSignal(false)
+    <div class="min-h-screen flex items-center justify-center bg-base-200">
+      <div class="card bg-base-100 w-96 shadow-xl p-8">
+        <h1 class="text-3xl font-bold text-center mb-6 text-red-700">NiggaFlix</h1>
+        
+        {error() && (
+          <div class="alert alert-error mb-4">
+            <p>{error()}</p>
+          </div>
+        )}
 
-          onMount(async () => {
-            try {
-              const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                headers: {
-                  apikey: SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`
-                }
-              })
-              if (!res.ok && location.pathname !== "/login") {
-                navigate("/login")
-              }
-            } catch {
-              if (location.pathname !== "/login") navigate("/login")
-            }
-            setChecked(true)
-          })
-
-          return (
-            <>
-              <Nav />
-              <Show when={checked()}>
-                <Suspense>{props.children}</Suspense>
-              </Show>
-              <Footer />
-            </>
-          )
-        }}
-      >
-        <FileRoutes />
-      </Router>
-    </main>
+        <div class="form-control gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            class="input input-bordered w-full"
+            value={email()}
+            onInput={(e) => setEmail(e.target.value)}
+          /><br/><br/>
+          <input
+            type="password"
+            placeholder="Password"
+            class="input input-bordered w-full"
+            value={password()}
+            onInput={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+          /><br/><br/>
+          <button
+            class="btn btn-error w-full"
+            onClick={handleLogin}
+            disabled={loading()}
+          >
+            {loading() ? <span class="loading loading-spinner"></span> : "Sign In"}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
