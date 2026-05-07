@@ -5,7 +5,9 @@ const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/movies"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
 function VideoPlayer(props) {
+  let videoRef
   const [subtitleUrl, setSubtitleUrl] = createSignal(null)
+  const [subtitlesOn, setSubtitlesOn] = createSignal(false)
 
   function handleSubtitleUpload(e) {
     const file = e.target.files[0]
@@ -20,13 +22,24 @@ function VideoPlayer(props) {
       }
       const blob = new Blob([content], { type: 'text/vtt' })
       setSubtitleUrl(URL.createObjectURL(blob))
+      setSubtitlesOn(true)
     }
     reader.readAsText(file)
+  }
+
+  function toggleSubtitles() {
+    if (!videoRef) return
+    const tracks = videoRef.textTracks
+    if (tracks.length === 0) return
+    const newState = !subtitlesOn()
+    setSubtitlesOn(newState)
+    tracks[0].mode = newState ? 'showing' : 'hidden'
   }
 
   return (
     <div>
       <video
+        ref={videoRef}
         controls
         autoplay
         width="100%"
@@ -35,14 +48,15 @@ function VideoPlayer(props) {
         {subtitleUrl() && (
           <track
             kind="subtitles"
-            label="Custom Subtitle"
+            label="Subtitles"
             srclang="en"
             src={subtitleUrl()}
-            default
+            default={false}
           />
         )}
       </video>
-      <div class="mt-2 flex items-center gap-2">
+
+      <div class="mt-2 flex items-center gap-2 flex-wrap">
         <label class="btn btn-sm btn-outline cursor-pointer">
           📄 Upload Subtitle (.srt / .vtt)
           <input
@@ -52,8 +66,17 @@ function VideoPlayer(props) {
             onChange={handleSubtitleUpload}
           />
         </label>
+        {subtitleUrl() && (
+          <button
+            class={`btn btn-sm ${subtitlesOn() ? 'btn-success' : 'btn-outline'}`}
+            onClick={toggleSubtitles}
+          >
+            CC {subtitlesOn() ? 'ON' : 'OFF'}
+          </button>
+        )}
         {subtitleUrl() && <span class="text-sm text-success">✅ Subtitle loaded!</span>}
       </div>
+
       <button class="btn btn-error w-full mt-2" onClick={props.onClose}>✕ Close</button>
     </div>
   )
