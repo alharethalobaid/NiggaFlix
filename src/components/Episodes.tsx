@@ -1,7 +1,7 @@
 import { createResource, For, Suspense, createSignal, onMount, onCleanup } from "solid-js";
 import { useParams } from "@solidjs/router";
 import videojs from "video.js";
-import "video.js/dist/video-css/video-js.css";
+import "video.js/dist/video-js.min.css";
 
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/movies"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
