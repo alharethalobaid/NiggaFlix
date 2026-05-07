@@ -57,24 +57,18 @@ function VideoPlayer(props) {
       </video>
 
       <div class="mt-2 flex items-center gap-2 flex-wrap">
-        <label class="btn btn-sm btn-outline cursor-pointer">
-          📄 Upload Subtitle (.srt / .vtt)
-          <input
-            type="file"
-            accept=".srt,.vtt"
-            class="hidden"
-            onChange={handleSubtitleUpload}
-          />
-        </label>
-        {subtitleUrl() && (
-          <button
-            class={`btn btn-sm ${subtitlesOn() ? 'btn-success' : 'btn-outline'}`}
-            onClick={toggleSubtitles}
-          >
-            CC {subtitlesOn() ? 'ON' : 'OFF'}
-          </button>
-        )}
-        {subtitleUrl() && <span class="text-sm text-success">✅ Subtitle loaded!</span>}
+        <input
+          type="file"
+          accept=".srt,.vtt"
+          onChange={handleSubtitleUpload}
+        />
+        <button
+          class={`btn btn-sm ${subtitlesOn() ? 'btn-success' : 'btn-outline'}`}
+          onClick={toggleSubtitles}
+          disabled={!subtitleUrl()}
+        >
+          CC {subtitlesOn() ? 'ON' : 'OFF'}
+        </button>
       </div>
 
       <button class="btn btn-error w-full mt-2" onClick={props.onClose}>✕ Close</button>
