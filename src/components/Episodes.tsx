@@ -1,55 +1,56 @@
-import { createResource, For, Suspense, createSignal, onMount, onCleanup } from "solid-js";
+import { createResource, For, Suspense, createSignal } from "solid-js";
 import { useParams } from "@solidjs/router";
-import videojs from "video.js";
-import "video.js/dist/video-js.min.css";
 
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/movies"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
 function VideoPlayer(props) {
-  let videoRef
-  let player
   const [subtitleUrl, setSubtitleUrl] = createSignal(null)
-
-  onMount(() => {
-    player = videojs(videoRef, {
-      controls: true,
-      autoplay: true,
-      fluid: true,
-      sources: [{ src: props.src, type: 'video/mp4' }]
-    })
-  })
-
-  onCleanup(() => {
-    if (player) player.dispose()
-  })
 
   function handleSubtitleUpload(e) {
     const file = e.target.files[0]
     if (!file) return
-    const url = URL.createObjectURL(file)
-    setSubtitleUrl(url)
 
-    // add subtitle track to player
-    const track = document.createElement('track')
-    track.kind = 'subtitles'
-    track.label = file.name
-    track.srclang = 'en'
-    track.src = url
-    track.default = true
-    videoRef.appendChild(track)
-    player.load()
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      let content = ev.target.result as string
+      if (file.name.endsWith('.srt')) {
+        content = 'WEBVTT\n\n' + content
+          .replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2')
+      }
+      const blob = new Blob([content], { type: 'text/vtt' })
+      setSubtitleUrl(URL.createObjectURL(blob))
+    }
+    reader.readAsText(file)
   }
 
   return (
     <div>
-      <div data-vjs-player>
-        <video ref={videoRef} class="video-js vjs-big-play-centered vjs-theme-sea" />
-      </div>
+      <video
+        controls
+        autoplay
+        width="100%"
+        src={props.src}
+      >
+        {subtitleUrl() && (
+          <track
+            kind="subtitles"
+            label="Custom Subtitle"
+            srclang="en"
+            src={subtitleUrl()}
+            default
+          />
+        )}
+      </video>
       <div class="mt-2 flex items-center gap-2">
-        <label class="btn btn-sm btn-outline">
+        <label class="btn btn-sm btn-outline cursor-pointer">
           📄 Upload Subtitle (.srt / .vtt)
-          <input type="file" accept=".srt,.vtt" class="hidden" onChange={handleSubtitleUpload} />
+          <input
+            type="file"
+            accept=".srt,.vtt"
+            class="hidden"
+            onChange={handleSubtitleUpload}
+          />
         </label>
         {subtitleUrl() && <span class="text-sm text-success">✅ Subtitle loaded!</span>}
       </div>
