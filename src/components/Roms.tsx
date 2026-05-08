@@ -3,6 +3,7 @@ import { useNavigate } from "@solidjs/router";
 
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/roms"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
+const THUMBNAILS_URL = "https://videos.alharethalobaid.com/thumbnails"
 
 export default function Roms() {
   const navigate = useNavigate()
@@ -18,13 +19,17 @@ export default function Roms() {
     const all = await res.json()
     if (!Array.isArray(all)) return []
 
-    // get unique systems with their thumbnail
     const seen = new Set()
-    return all.filter(item => {
-      if (seen.has(item.system)) return false
+    const systems: any[] = []
+    for (const item of all) {
+      if (seen.has(item.system)) continue
       seen.add(item.system)
-      return true
-    })
+      systems.push({
+        system: item.system,
+        thumbnail_url: `${THUMBNAILS_URL}/${item.system.toLowerCase()}.webp`
+      })
+    }
+    return systems
   })
 
   const filtered = () => {
