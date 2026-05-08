@@ -16,8 +16,7 @@ export default function Roms() {
     const all = await res.json()
     if (!Array.isArray(all)) return {}
 
-    // group by system
-    const grouped = {}
+    const grouped: Record<string, any[]> = {}
     for (const item of all) {
       const sys = item.system || 'Unknown'
       if (!grouped[sys]) grouped[sys] = []
@@ -31,9 +30,9 @@ export default function Roms() {
     const grouped = data() || {}
     if (!q) return grouped
 
-    const result = {}
+    const result: Record<string, any[]> = {}
     for (const [system, items] of Object.entries(grouped)) {
-      const matches = (items as any[]).filter(item =>
+      const matches = items.filter(item =>
         (item.title || item.file_name || '').toLowerCase().includes(q)
       )
       if (matches.length > 0) result[system] = matches
@@ -57,7 +56,7 @@ export default function Roms() {
             <div class="mb-8">
               <h2 class="text-xl font-bold mb-3 text-red-600">{system}</h2>
               <div class="flex flex-col gap-2">
-                <For each={items as any[]}>
+                <For each={items}>
                   {(item) => (
                     <div class="card bg-base-100 shadow-sm p-3 flex flex-row justify-between items-center">
                       <p class="font-medium">{item.title || item.file_name}</p>
@@ -66,7 +65,7 @@ export default function Roms() {
                         download={item.file_name}
                         class="btn btn-sm btn-error"
                       >
-                        ⬇ Download
+                        Download
                       </a>
                     </div>
                   )}
