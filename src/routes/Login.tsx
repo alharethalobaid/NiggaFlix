@@ -18,7 +18,7 @@ export default function Login() {
     setLoading(true)
     setError("")
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email(),
       password: password()
     })
@@ -27,7 +27,8 @@ export default function Login() {
       setError(error.message)
       setLoading(false)
     } else {
-      navigate("/")
+      localStorage.setItem('access_token', data.session.access_token)
+      navigate("/movies")
     }
   }
 
@@ -35,7 +36,7 @@ export default function Login() {
     <div class="min-h-screen flex items-center justify-center bg-base-200">
       <div class="card bg-base-100 w-96 shadow-xl p-8">
         <h1 class="text-3xl font-bold text-center mb-6 text-red-700">NiggaFlix</h1>
-        
+
         {error() && (
           <div class="alert alert-error mb-4">
             <p>{error()}</p>
