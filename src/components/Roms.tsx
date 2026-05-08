@@ -3,6 +3,13 @@ import { createResource, For, Suspense, createSignal } from "solid-js";
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/roms"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
+function downloadFile(url: string, filename: string) {
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+}
+
 export default function Roms() {
   const [search, setSearch] = createSignal("")
 
@@ -50,7 +57,6 @@ export default function Roms() {
           value={search()}
           onInput={(e) => setSearch(e.target.value)}
         />
-
         <For each={Object.entries(filtered())}>
           {([system, items]) => (
             <div class="mb-8">
@@ -60,13 +66,12 @@ export default function Roms() {
                   {(item) => (
                     <div class="card bg-base-100 shadow-sm p-3 flex flex-row justify-between items-center">
                       <p class="font-medium">{item.title || item.file_name}</p>
-                      
-                        href={item.file_url}
-                        download={item.file_name}
+                      <button
                         class="btn btn-sm btn-error"
+                        onClick={() => downloadFile(item.file_url, item.file_name)}
                       >
                         Download
-                      </a>
+                      </button>
                     </div>
                   )}
                 </For>
