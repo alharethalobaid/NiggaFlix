@@ -4,6 +4,8 @@ import { useParams } from "@solidjs/router";
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/roms"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
+const ADMIN_UID = "ccc240bc-3322-42cd-b24c-015be29b0c75"
+
 function downloadFile(url: string, filename: string) {
   const a = document.createElement('a')
   a.href = url
@@ -11,9 +13,21 @@ function downloadFile(url: string, filename: string) {
   a.click()
 }
 
+function getCurrentUserId(): string | null {
+  try {
+    const raw = localStorage.getItem('sb-rwzsafzjrdqtrtalyzfz-auth-token')
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return parsed?.user?.id || null
+  } catch {
+    return null
+  }
+}
+
 export default function RomSystem() {
   const params = useParams()
   const [search, setSearch] = createSignal("")
+  const isAdmin = getCurrentUserId() === ADMIN_UID
 
   const [data] = createResource(async () => {
     const system = decodeURIComponent(params.system)
@@ -62,12 +76,18 @@ export default function RomSystem() {
                 )}
                 <div class="card-body p-3">
                   <p class="font-medium text-sm">{item.title || item.file_name}</p>
-                  <button
-                    class="btn btn-sm btn-error w-full mt-2"
-                    onClick={() => downloadFile(item.file_url, item.file_name)}
-                  >
-                    Download
-                  </button>
+                  {isAdmin ? (
+                    <button
+                      class="btn btn-sm btn-error w-full mt-2"
+                      onClick={() => downloadFile(item.file_url, item.file_name)}
+                    >
+                      Download
+                    </button>
+                  ) : (
+                    <button class="btn btn-sm btn-disabled w-full mt-2" disabled>
+                      🔒 Unavailable
+                    </button>
+                  )}
                 </div>
               </div>
             )}
