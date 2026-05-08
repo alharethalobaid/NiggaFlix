@@ -17,31 +17,50 @@ export default function App() {
           const navigate = useNavigate()
           const location = useLocation()
           const [checked, setChecked] = createSignal(false)
+          const [authed, setAuthed] = createSignal(false)
 
           onMount(async () => {
+            const token = localStorage.getItem('access_token')
+
+            if (!token) {
+              if (location.pathname !== '/login') navigate('/login')
+              setChecked(true)
+              return
+            }
+
             try {
               const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                 headers: {
                   apikey: SUPABASE_KEY,
-                  Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`
+                  Authorization: `Bearer ${token}`
                 }
               })
-              if (!res.ok && location.pathname !== "/login") {
-                navigate("/login")
+
+              if (res.ok) {
+                setAuthed(true)
+                if (location.pathname === '/login') navigate('/movies')
+              } else {
+                localStorage.removeItem('access_token')
+                if (location.pathname !== '/login') navigate('/login')
               }
             } catch {
-              if (location.pathname !== "/login") navigate("/login")
+              if (location.pathname !== '/login') navigate('/login')
             }
+
             setChecked(true)
           })
 
           return (
             <>
-              <Nav />
+              <Show when={authed()}>
+                <Nav />
+              </Show>
               <Show when={checked()}>
                 <Suspense>{props.children}</Suspense>
               </Show>
-              <Footer />
+              <Show when={authed()}>
+                <Footer />
+              </Show>
             </>
           )
         }}
