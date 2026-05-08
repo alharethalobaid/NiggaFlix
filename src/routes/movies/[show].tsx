@@ -29,13 +29,13 @@ export default function Episodes() {
               <div class="card bg-base-100 shadow-sm p-4">
                 {playing() === `${item.season}-${item.episode}` ? (
                   <div>
-                    <video controls autoplay width="100%" src={item.video_url} />
+                    <video controls controlsList="nodownload" autoplay width="100%" src={item.video_url} />
                     <button class="btn btn-error w-full mt-2" onClick={() => setPlaying(null)}>✕ Close</button>
                   </div>
                 ) : (
                   <div class="flex justify-between items-center">
                     <p>S{String(item.season).padStart(2,'0')}E{String(item.episode).padStart(2,'0')} — {item.show}</p>
-                    <button class="btn btn-error btn-sm"onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
+                    <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
                   </div>
                 )}
               </div>
