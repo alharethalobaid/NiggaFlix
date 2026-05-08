@@ -61,6 +61,17 @@ export default function Nav() {
           </A>
         </li>
 
+                <li>
+          <A
+            href="/P3"
+            end={true}
+            inactiveClass="border-primary-content/70 hover:border-b-2"
+            activeClass="border-primary-content/70 border-b-2"
+          >
+            Roms
+          </A>
+        </li>
+
         <li>
           <label class="pl-5 swap swap-rotate">
             <input type="checkbox" class="theme-controller" value={_dark} />
