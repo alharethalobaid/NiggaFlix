@@ -40,7 +40,7 @@ export default function Roms() {
       <div class="p-4">
         <input
           type="text"
-          placeholder="Search movies & shows..."
+          placeholder="Search roms..."
           class="input input-bordered w-full max-w-md mb-6"
           value={search()}
           onInput={(e) => setSearch(e.target.value)}
