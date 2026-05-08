@@ -1,16 +1,11 @@
 import { createResource, For, Suspense, createSignal } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/roms"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
-function downloadFile(url: string, filename: string) {
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-}
-
 export default function Roms() {
+  const navigate = useNavigate()
   const [search, setSearch] = createSignal("")
 
   const [data] = createResource(async () => {
@@ -21,30 +16,23 @@ export default function Roms() {
       }
     })
     const all = await res.json()
-    if (!Array.isArray(all)) return {}
+    if (!Array.isArray(all)) return []
 
-    const grouped: Record<string, any[]> = {}
-    for (const item of all) {
-      const sys = item.system || 'Unknown'
-      if (!grouped[sys]) grouped[sys] = []
-      grouped[sys].push(item)
-    }
-    return grouped
+    // get unique systems with their thumbnail
+    const seen = new Set()
+    return all.filter(item => {
+      if (seen.has(item.system)) return false
+      seen.add(item.system)
+      return true
+    })
   })
 
   const filtered = () => {
     const q = search().toLowerCase()
-    const grouped = data() || {}
-    if (!q) return grouped
-
-    const result: Record<string, any[]> = {}
-    for (const [system, items] of Object.entries(grouped)) {
-      const matches = items.filter(item =>
-        (item.title || item.file_name || '').toLowerCase().includes(q)
-      )
-      if (matches.length > 0) result[system] = matches
-    }
-    return result
+    if (!q) return data() || []
+    return (data() || []).filter(item =>
+      (item.system || '').toLowerCase().includes(q)
+    )
   }
 
   return (
@@ -52,33 +40,26 @@ export default function Roms() {
       <div class="p-4">
         <input
           type="text"
-          placeholder="Search roms..."
+          placeholder="Search systems..."
           class="input input-bordered w-full max-w-md mb-6"
           value={search()}
           onInput={(e) => setSearch(e.target.value)}
         />
-        <For each={Object.entries(filtered())}>
-          {([system, items]) => (
-            <div class="mb-8">
-              <h2 class="text-xl font-bold mb-3 text-red-600">{system}</h2>
-              <div class="flex flex-col gap-2">
-                <For each={items}>
-                  {(item) => (
-                    <div class="card bg-base-100 shadow-sm p-3 flex flex-row justify-between items-center">
-                      <p class="font-medium">{item.title || item.file_name}</p>
-                      <button
-                        class="btn btn-sm btn-error"
-                        onClick={() => downloadFile(item.file_url, item.file_name)}
-                      >
-                        Download
-                      </button>
-                    </div>
-                  )}
-                </For>
+        <div class="flex flex-wrap gap-4">
+          <For each={filtered()}>
+            {(item) => (
+              <div
+                class="card bg-base-100 w-60 shadow-sm cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => navigate(`/roms/${encodeURIComponent(item.system)}`)}
+              >
+                <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.system} width="100%" />
+                <div class="card-body">
+                  <h2 class="card-title">{item.system}</h2>
+                </div>
               </div>
-            </div>
-          )}
-        </For>
+            )}
+          </For>
+        </div>
       </div>
     </Suspense>
   )
