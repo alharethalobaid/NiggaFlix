@@ -4,23 +4,9 @@ import { useParams } from "@solidjs/router";
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/anime"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
-const ADMIN_UID = "ccc240bc-3322-42cd-b24c-015be29b0c75"
-
-function getCurrentUserId(): string | null {
-  try {
-    const raw = localStorage.getItem('sb-rwzsafzjrdqtrtalyzfz-auth-token')
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    return parsed?.user?.id || null
-  } catch {
-    return null
-  }
-}
-
 export default function AnimeEpisodes() {
   const params = useParams()
   const [playing, setPlaying] = createSignal(null)
-  const isAdmin = getCurrentUserId() === ADMIN_UID
 
   const [data] = createResource(async () => {
     const show = decodeURIComponent(params.show)
@@ -49,11 +35,7 @@ export default function AnimeEpisodes() {
                 ) : (
                   <div class="flex justify-between items-center">
                     <p>Episode {item.episode} — {item.show}</p>
-                    {isAdmin ? (
-                      <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.episode}`)}>▶ Play</button>
-                    ) : (
-                      <button class="btn btn-sm btn-disabled" disabled>🔒 Unavailable</button>
-                    )}
+                    <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.episode}`)}>▶ Play</button>
                   </div>
                 )}
               </div>
