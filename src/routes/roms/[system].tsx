@@ -45,17 +45,30 @@ export default function RomSystem() {
         onInput={(e) => setSearch(e.target.value)}
       />
       <Suspense fallback={<span class="loading loading-ball loading-md"></span>}>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-wrap gap-4">
           <For each={filtered()}>
             {(item) => (
-              <div class="card bg-base-100 shadow-sm p-3 flex flex-row justify-between items-center">
-                <p class="font-medium">{item.title || item.file_name}</p>
-                <button
-                  class="btn btn-sm btn-error"
-                  onClick={() => downloadFile(item.file_url, item.file_name)}
-                >
-                  Download
-                </button>
+              <div class="card bg-base-100 w-48 shadow-sm hover:scale-105 transition-transform">
+                {item.thumbnail_url ? (
+                  <img
+                    src={item.thumbnail_url}
+                    alt={item.title}
+                    class="rounded-t-xl w-full h-64 object-cover"
+                  />
+                ) : (
+                  <div class="w-full h-64 bg-base-300 rounded-t-xl flex items-center justify-center text-4xl">
+                    🎮
+                  </div>
+                )}
+                <div class="card-body p-3">
+                  <p class="font-medium text-sm">{item.title || item.file_name}</p>
+                  <button
+                    class="btn btn-sm btn-error w-full mt-2"
+                    onClick={() => downloadFile(item.file_url, item.file_name)}
+                  >
+                    Download
+                  </button>
+                </div>
               </div>
             )}
           </For>
