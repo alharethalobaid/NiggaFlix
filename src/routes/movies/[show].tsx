@@ -4,33 +4,12 @@ import { useParams } from "@solidjs/router";
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/movies"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
-const ADMIN_UID = "ccc240bc-3322-42cd-b24c-015be29b0c75"
-
-function getCurrentUserId(): string | null {
-  try {
-    const raw = localStorage.getItem('sb-rwzsafzjrdqtrtalyzfz-auth-token')
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
-    return parsed?.user?.id || null
-  } catch {
-    return null
-  }
-}
-
-function downloadFile(url: string, filename: string) {
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-}
-
 function openInVLC(videoUrl: string) {
   window.location.href = `vlc://${videoUrl}`
 }
 
 export default function Episodes() {
   const params = useParams()
-  const isAdmin = getCurrentUserId() === ADMIN_UID
   const [playing, setPlaying] = createSignal(null)
 
   const [data] = createResource(async () => {
@@ -63,9 +42,6 @@ export default function Episodes() {
                     <div class="flex gap-2">
                       <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
                       <button class="btn btn-warning btn-sm" onClick={() => openInVLC(item.video_url)}>🎬 VLC</button>
-                      {isAdmin && (
-                        <button class="btn btn-success btn-sm" onClick={() => downloadFile(item.video_url, item.file_name)}>⬇ Download</button>
-                      )}
                     </div>
                   </div>
                 )}
