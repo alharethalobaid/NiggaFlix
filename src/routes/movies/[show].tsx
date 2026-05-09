@@ -28,8 +28,6 @@ export default function Episodes() {
   const params = useParams()
   const isAdmin = getCurrentUserId() === ADMIN_UID
   const [playing, setPlaying] = createSignal<string | null>(null)
-  const [showSubMenu, setShowSubMenu] = createSignal<string | null>(null)
-  const [customSub, setCustomSub] = createSignal<{ key: string, url: string, label: string } | null>(null)
 
   const [data] = createResource(async () => {
     const show = decodeURIComponent(params.show)
@@ -42,23 +40,6 @@ export default function Episodes() {
     return res.json()
   })
 
-  function handleSubUpload(e: Event, key: string) {
-    const input = e.target as HTMLInputElement
-    const file = input.files?.[0]
-    if (!file) return
-    const url = URL.createObjectURL(file)
-    setCustomSub({ key, url, label: file.name })
-    setShowSubMenu(null)
-  }
-
-  function getSubUrl(item: any) {
-    const key = `${item.season}-${item.episode}`
-    if (customSub()?.key === key) return customSub()!.url
-    // try external subtitle url from supabase if exists
-    if (item.subtitle_url) return item.subtitle_url
-    return null
-  }
-
   return (
     <div class="p-4">
       <h1 class="text-2xl font-bold mb-4">{decodeURIComponent(params.show)}</h1>
@@ -67,87 +48,21 @@ export default function Episodes() {
           <For each={data()}>
             {(item) => {
               const key = `${item.season}-${item.episode}`
-              const subUrl = () => {
-                if (customSub()?.key === key) return customSub()!.url
-                if (item.subtitle_url) return item.subtitle_url
-                return null
-              }
-
               return (
                 <div class="card bg-base-100 shadow-sm p-4">
                   {playing() === key ? (
                     <div>
-                      <video
-                        controls
-                        controlsList={isAdmin ? "" : "nodownload"}
-                        autoplay
-                        width="100%"
-                        src={item.video_url}
-                      >
-                        {subUrl() && (
-                          <track
-                            kind="subtitles"
-                            src={subUrl()!}
-                            label={customSub()?.key === key ? customSub()!.label : "Subtitles"}
-                            default
-                          />
-                        )}
-                      </video>
-                      <button class="btn btn-error w-full mt-2" onClick={() => { setPlaying(null); setShowSubMenu(null) }}>✕ Close</button>
+                      <video controls controlsList="nodownload" autoplay width="100%" src={item.video_url} />
+                      <button class="btn btn-error w-full mt-2" onClick={() => setPlaying(null)}>✕ Close</button>
                     </div>
                   ) : (
                     <div class="flex justify-between items-center">
                       <p>S{String(item.season).padStart(2,'0')}E{String(item.episode).padStart(2,'0')} — {item.show}</p>
-                      <div class="flex gap-2 items-center relative">
+                      <div class="flex gap-2">
                         <button class="btn btn-error btn-sm" onClick={() => setPlaying(key)}>▶ Play</button>
-
-                        {/* Subtitle button */}
-                        <div class="relative">
-                          <button
-                            class="btn btn-info btn-sm"
-                            onClick={() => setShowSubMenu(showSubMenu() === key ? null : key)}
-                          >
-                            CC {subUrl() ? '✓' : ''}
-                          </button>
-                          {showSubMenu() === key && (
-                            <div class="absolute right-0 top-8 z-50 bg-base-200 shadow-lg rounded-lg p-3 w-56 flex flex-col gap-2">
-                              {item.subtitle_url && (
-                                <button
-                                  class="btn btn-sm btn-outline w-full"
-                                  onClick={() => { setCustomSub(null); setShowSubMenu(null) }}
-                                >
-                                  📄 Built-in Subtitles
-                                </button>
-                              )}
-                              <label class="btn btn-sm btn-outline w-full cursor-pointer">
-                                📁 Upload .srt / .vtt
-                                <input
-                                  type="file"
-                                  accept=".srt,.vtt"
-                                  class="hidden"
-                                  onChange={(e) => handleSubUpload(e, key)}
-                                />
-                              </label>
-                              {customSub()?.key === key && (
-                                <button
-                                  class="btn btn-sm btn-error w-full"
-                                  onClick={() => { setCustomSub(null); setShowSubMenu(null) }}
-                                >
-                                  ✕ Remove Sub
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Admin only download */}
+                        <a href={`vlc://${item.video_url}`} class="btn btn-warning btn-sm">🎬 VLC</a>
                         {isAdmin && (
-                          <button
-                            class="btn btn-warning btn-sm"
-                            onClick={() => downloadFile(item.video_url, item.file_name)}
-                          >
-                            ⬇ Download
-                          </button>
+                          <button class="btn btn-success btn-sm" onClick={() => downloadFile(item.video_url, item.file_name)}>⬇ Download</button>
                         )}
                       </div>
                     </div>
