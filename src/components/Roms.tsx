@@ -22,11 +22,12 @@ export default function Roms() {
     const seen = new Set()
     const systems: any[] = []
     for (const item of all) {
+      if (!item.system) continue
       if (seen.has(item.system)) continue
       seen.add(item.system)
       systems.push({
         system: item.system,
-        thumbnail_url: `${THUMBNAILS_URL}/${item.system.toLowerCase()}.webp`
+        thumbnail_url: `${THUMBNAILS_URL}/${item.system.toLowerCase().replace(/\s+/g, '')}.webp`
       })
     }
     return systems
