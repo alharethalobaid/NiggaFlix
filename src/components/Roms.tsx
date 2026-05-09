@@ -5,12 +5,6 @@ const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/roms"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 const THUMBNAILS_URL = "https://videos.alharethalobaid.com/thumbnails"
 
-function getSystemThumbnail(system: string): string {
-  // normalize: lowercase, remove spaces
-  const key = system.toLowerCase().replace(/\s+/g, '')
-  return `${THUMBNAILS_URL}/${key}.jpg`
-}
-
 export default function Roms() {
   const navigate = useNavigate()
   const [search, setSearch] = createSignal("")
@@ -28,12 +22,11 @@ export default function Roms() {
     const seen = new Set()
     const systems: any[] = []
     for (const item of all) {
-      if (!item.system) continue
       if (seen.has(item.system)) continue
       seen.add(item.system)
       systems.push({
         system: item.system,
-        thumbnail_url: getSystemThumbnail(item.system)
+        thumbnail_url: `${THUMBNAILS_URL}/${item.system.toLowerCase()}.webp`
       })
     }
     return systems
