@@ -35,7 +35,10 @@ export default function Episodes() {
                 ) : (
                   <div class="flex justify-between items-center">
                     <p>S{String(item.season).padStart(2,'0')}E{String(item.episode).padStart(2,'0')} — {item.show}</p>
-                    <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
+                    <div class="flex gap-2">
+                      <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
+                      <a href={`vlc://${item.video_url}`} class="btn btn-warning btn-sm">🎬 VLC</a>
+                    </div>
                   </div>
                 )}
               </div>
