@@ -4,15 +4,8 @@ import { useParams } from "@solidjs/router";
 const SUPABASE_URL = "https://rwzsafzjrdqtrtalyzfz.supabase.co/rest/v1/movies"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3enNhZnpqcmRxdHJ0YWx5emZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4OTE0OTgsImV4cCI6MjA5MzQ2NzQ5OH0.ylIpVoOpwFP9JltF68oBZAT6JLfaDWuHDOxlkvwIiVU"
 
-function openInVLC(videoUrl: string, title: string) {
-  const m3u = `#EXTM3U\n#EXTINF:-1,${title}\n${videoUrl}`
-  const blob = new Blob([m3u], { type: 'audio/x-mpegurl' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${title}.m3u`
-  a.click()
-  URL.revokeObjectURL(url)
+function openInVLC(videoUrl: string) {
+  window.location.href = `vlc://${videoUrl}`
 }
 
 export default function Episodes() {
@@ -48,7 +41,7 @@ export default function Episodes() {
                     <p>S{String(item.season).padStart(2,'0')}E{String(item.episode).padStart(2,'0')} — {item.show}</p>
                     <div class="flex gap-2">
                       <button class="btn btn-error btn-sm" onClick={() => setPlaying(`${item.season}-${item.episode}`)}>▶ Play</button>
-                      <button class="btn btn-warning btn-sm" onClick={() => openInVLC(item.video_url, `S${String(item.season).padStart(2,'0')}E${String(item.episode).padStart(2,'0')} - ${item.show}`)}>🎬 VLC</button>
+                      <button class="btn btn-warning btn-sm" onClick={() => openInVLC(item.video_url)}>🎬 VLC</button>
                     </div>
                   </div>
                 )}
