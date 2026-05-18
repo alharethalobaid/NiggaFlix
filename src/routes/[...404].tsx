@@ -7,7 +7,7 @@ export default function NotFound() {
       
       <h1 class="text-6xl text-primary font-thin uppercase my-16">
         404 <br />
-        Page Not Found!
+        Page Nigger Found!
       </h1>
                   
     </main>
