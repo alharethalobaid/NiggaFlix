@@ -58,7 +58,7 @@ export default function Roms() {
                 class="card bg-base-100 w-60 shadow-sm cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => navigate(`/roms/${encodeURIComponent(item.system)}`)}
               >
-                <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.system} width="100%" />
+                <img class="rounded-t-xl" src={item.thumbnail_url} alt={item.system} width="865px" height="587px" />
                 <div class="card-body">
                   <h2 class="card-title">{item.system}</h2>
                 </div>
