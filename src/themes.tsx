@@ -1,2 +1,2 @@
 export let _light="winter";
-export let _dark="black";
+export let _dark="halloween";
