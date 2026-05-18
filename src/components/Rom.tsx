@@ -6,7 +6,7 @@ export default function Roms(props) {
   return (
     <>
       <div class="card bg-base-100 w-96 shadow-sm">
-      <img style={{"border-radius": "12px"}} src={props.item.thumbnail_url} alt={props.item.show} width="100%" />
+      <img style={{"border-radius": "12px"}} src={props.item.thumbnail_url} alt={props.item.show} width="865px" height="587px" />
         {playing() ? (
           <div class="p-4">
             <video
