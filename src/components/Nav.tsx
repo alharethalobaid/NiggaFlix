@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router';
-import { _dark } from '~/themes';
+import { _dark, _light } from '~/themes';
 
 export default function Nav() {
   return (
@@ -74,7 +74,7 @@ export default function Nav() {
 
         <li>
           <label class="pl-5 swap swap-rotate">
-            <input type="checkbox" class="theme-controller" value={_dark} />
+            <input type="checkbox" class="theme-controller" value={_light} />
             <svg
               class="swap-off h-7 w-7 fill-current"
               xmlns="http://www.w3.org/2000/svg"
